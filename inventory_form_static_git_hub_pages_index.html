@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>טופס מלאי יומי</title>
+  <style>
+    :root{
+      --bg:#f7f7fb;--card:#ffffff;--ink:#111827;--muted:#6b7280;--brand:#0ea5e9;--hot:#f59e0b;--cold:#06b6d4;--nines:#10b981;
+    }
+    html,body{margin:0;padding:0;background:linear-gradient(180deg,#faf7ff,#f5f8ff 60%,#fff);color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,"Apple Color Emoji","Segoe UI Emoji"}
+    .container{max-width:720px;margin:0 auto;padding:16px}
+    header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:12px}
+    h1{margin:0;font-size:22px;background:linear-gradient(90deg,#d946ef,#0ea5e9);-webkit-background-clip:text;background-clip:text;color:transparent}
+    .sub{margin:4px 0 0;color:var(--muted);font-size:13px}
+    .btn{border:1px solid #e5e7eb;background:#fff;border-radius:999px;padding:6px 10px;font-size:13px;cursor:pointer}
+    .row{display:grid;grid-template-columns:1fr;gap:10px;margin-bottom:10px}
+    .input,textarea,select{border:1px solid #e5e7eb;border-radius:14px;padding:10px;background:#fff;font-size:14px;width:100%}
+    .pill{display:flex;align-items:center;border:1px solid #e5e7eb;border-radius:999px;background:#fff;padding:6px 10px;gap:8px}
+    .searchWrap{display:flex;gap:8px}
+    .cat{border:1px solid #e5e7eb;border-radius:16px;padding:12px;margin-bottom:12px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+    .cat.cold{background:linear-gradient(180deg,#ecfeff,#f0f9ff)}
+    .cat.hot{background:linear-gradient(180deg,#fff7ed,#fff1f2)}
+    .cat.nines{background:linear-gradient(180deg,#ecfdf5,#f7fee7)}
+    .catHeader{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+    .chip{border-radius:999px;padding:4px 10px;font-weight:600;color:#052316}
+    .chip.cold{background:linear-gradient(90deg,#67e8f9,#7dd3fc)}
+    .chip.hot{background:linear-gradient(90deg,#fcd34d,#fb7185)}
+    .chip.nines{background:linear-gradient(90deg,#86efac,#bef264)}
+    .mini{font-size:12px;color:var(--muted)}
+    ul{list-style:none;margin:0;padding:0}
+    li.item{background:var(--card);border:1px solid #e5e7eb;border-radius:14px;padding:10px;margin:8px 0}
+    .itemLine{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+    .name{flex:1 1 55%;min-width:220px;font-weight:600;line-height:1.2;word-break:break-word}
+    .nameSub{color:#065f46;font-size:12px;opacity:.8}
+    .qtyGroup{display:flex;flex-wrap:wrap;gap:8px;align-items:stretch}
+    .card{display:flex;align-items:center;gap:6px;border:1px solid #e5e7eb;border-radius:12px;padding:6px 8px;background:#fff;min-width:130px}
+    .card label{font-size:12px;color:var(--muted)}
+    .num{width:52px;text-align:center;border:1px solid #e5e7eb;border-radius:8px;padding:4px}
+    .qbtn{border:1px solid #e5e7eb;background:#fff;border-radius:8px;padding:4px 8px;cursor:pointer}
+    .total{display:flex;align-items:center;background:#111827;color:#fff;border-radius:999px;padding:4px 10px;font-size:12px;font-weight:700}
+    .actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+    .danger{border-color:#fecaca;color:#b91c1c;background:#fff}
+    .note{margin-top:10px}
+    .addRow{display:flex;gap:8px;align-items:center;margin-top:8px}
+    .small{font-size:12px}
+    footer{margin:14px 0;text-align:center;color:var(--muted);font-size:12px}
+  </style>
+</head>
+<body>
+  <div class="container" id="app"></div>
+  <script>
+  (function(){
+    // ===== Data =====
+    const LANGS={
+      he:{appTitle:"טופס מלאי יומי",subtitle:"קלט בליטרים/קופסאות. נשמר אוטומטית.",date:"תאריך",search:"חיפוש…",clear:"ניקוי",cold:"פס קר",hot:"פס חם",nines:"תשיעיות",note:(l)=>`הערה (${l})`,generalNote:"הערה כללית",share:"שליחה בווצאפ",copy:"העתקה ללוח",resetAll:"איפוס מלא",resetCat:"איפוס קטגוריה",nameCol:"שם",qtyCol:"כמות (ל׳)",addCustom:"+ פריט מותאם",jumpToInput:"קפיצה לקלט",liters:"ליטרים",boxes:"קופסאות (2 ל׳)",total:"סה\"כ",unit:"ל׳",version:"גרסה סטטית – GitHub Pages",dailyTitle:(d)=>`מלאי יומי – ${d}`,emoji:{cold:"🧊",hot:"🔥",nines:"🗂️"},shortages:"חוסרים"},
+      en:{appTitle:"Daily Inventory Form",subtitle:"Liters & 2L boxes. Auto-saved.",date:"Date",search:"Search…",clear:"Clear",cold:"Cold Line",hot:"Hot Line",nines:"Nines",note:(l)=>`Note (${l})`,generalNote:"General note",share:"Send via WhatsApp",copy:"Copy",resetAll:"Reset all",resetCat:"Reset category",nameCol:"Name",qtyCol:"Qty (L)",addCustom:"+ Custom item",jumpToInput:"Jump to input",liters:"Liters",boxes:"Boxes (2L)",total:"Total",unit:"L",version:"Static – GitHub Pages",dailyTitle:(d)=>`Daily Inventory – ${d}`,emoji:{cold:"🧊",hot:"🔥",nines:"🗂️"},shortages:"Shortages"}
+    };
+
+    const CATEGORIES=[
+      {id:"cold", labelKey:"cold"},
+      {id:"hot", labelKey:"hot"},
+      {id:"nines", labelKey:"nines"},
+    ];
+
+    const DEFAULT_ITEMS={
+      cold:["וואפו","בייס שיטאקי","ויני שיטאקי","אמאזו","סונומונו","ויניגרט ווסאבי","סודצ׳י פונזו"],
+      hot:["דן מיסו","מייפל קוג׳י","גומה דארה","קצואובושי טסויו","שמן קומבו","פונזו","איולי יוזו קושו","בייס קצבושי","קרמל קצבושי","טארה גרון","טארה בקר","טריאקי","רוטב כרוב","אגדאשי","ניטסוקה","סאקה מירין","נוזל יוזו","קומבו דאשי","צ׳ילי אוממי"],
+      nines:["יקיניקו","טונקאצו","חמאת טופנג׳ן","שומר סונומונו","פטריות מוחמצות","צ׳ילי טארה","דאי דאי"],
+    };
+
+    const NAME_MAP_EN={
+      "וואפו":"Wafu","בייס שיטאקי":"Shiitake Base","ויני שיטאקי":"Shiitake Vinaigrette","אמאזו":"Amazu","סונומונו":"Sunomono","ויניגרט ווסאבי":"Wasabi Vinaigrette","סודצ׳י פונזו":"Sudachi Ponzu",
+      "דן מיסו":"Dan Miso","מייפל קוג׳י":"Maple Koji","גומה דארה":"Goma Dare","קצואובושי טסויו":"Katsuobushi Tsuyu","שמן קומבו":"Kombu Oil","פונזו":"Ponzu","איולי יוזו קושו":"Yuzu-Kosho Aioli","בייס קצבושי":"Katsuobushi Base","קרמל קצבושי":"Katsuobushi Caramel","טארה גרון":"Tare – Throat","טארה בקר":"Tare – Beef","טריאקי":"Teriyaki","רוטב כרוב":"Cabbage Sauce","אגדאשי":"Agedashi","ניטסוקה":"Nitsuke","סאקה מירין":"Sake–Mirin","נוזל יוזו":"Yuzu Liquid","קומבו דאשי":"Kombu Dashi","צ׳ילי אוממי":"Umami Chili",
+      "יקיניקו":"Yakiniku","טונקאצו":"Tonkatsu","חמאת טופנג׳ן":"Topengen Butter","שומר סונומונו":"Fennel Sunomono","פטריות מוחמצות":"Pickled Mushrooms","צ׳ילי טארה":"Chili Tare","דאי דאי":"Daidai"
+    };
+
+    // ===== State =====
+    const LS_KEY='inv-form-static-v1';
+    const today=new Date().toISOString().slice(0,10);
+    const emptyByCat=()=>{const o={};CATEGORIES.forEach(c=>{o[c.id]={};(DEFAULT_ITEMS[c.id]||[]).forEach(n=>o[c.id][n]=0)});return o};
+    let state = (()=>{try{const s=JSON.parse(localStorage.getItem(LS_KEY)||'null');if(s&&s.items) return s}catch(e){}return {meta:{date:today},lang:'he',search:'',items:emptyByCat(),custom:{cold:[],hot:[],nines:[]},notes:{noteCold:'',noteHot:'',noteNines:'',general:''}}})();
+
+    function save(){localStorage.setItem(LS_KEY,JSON.stringify(state))}
+    function t(){return LANGS[state.lang in LANGS?state.lang:'he']}
+    function disp(name){return state.lang==='en'?(NAME_MAP_EN[name]??name):name}
+    function cap(s){return s.charAt(0).toUpperCase()+s.slice(1)}
+
+    // ===== Rendering =====
+    const app=document.getElementById('app');
+    function render(){
+      document.documentElement.setAttribute('dir', state.lang==='he'?'rtl':'ltr');
+      document.documentElement.setAttribute('lang', state.lang);
+      const lang=t();
+      let html='';
+      html+=`<header><div><h1>${lang.appTitle}</h1><p class="sub">${lang.subtitle}</p></div>
+        <button class="btn" id="langToggle">${state.lang==='he'?'EN':'HE'}</button></header>`;
+
+      html+=`<section class="row">
+        <label><span class="mini">${lang.date}</span>
+          <input class="input" type="date" id="dateInp" value="${state.meta.date||today}"></label>
+        <div class="searchWrap">
+          <div class="pill" style="flex:1"><span>🔎</span><input id="search" class="input" style="border:none;box-shadow:none;padding:0" placeholder="${lang.search}" value="${state.search||''}"></div>
+          ${state.search?`<button class="btn" id="clearSearch">${lang.clear}</button>`:''}
+        </div>
+      </section>`;
+
+      CATEGORIES.forEach(cat=>{
+        const items=state.items[cat.id];
+        const list = Object.keys(items).filter(n=> match(n));
+        const customs=(state.custom[cat.id]||[]).filter(r=>match(r.name||''));
+        html+=`<section class="cat ${cat.id}">
+          <div class="catHeader">
+            <div class="chip ${cat.id}">${lang[cat.labelKey]} ${lang.emoji[cat.id]}</div>
+            <button class="btn danger" data-act="clearCat" data-cat="${cat.id}">${lang.resetCat}</button>
+          </div>
+          <div class="mini" style="display:flex;justify-content:space-between;padding:0 6px 4px 6px"><span>${lang.nameCol}</span><span>${lang.qtyCol}</span></div>
+          <ul>`;
+        list.forEach(name=>{ const L=Number(items[name]||0); const {boxes,lit}=splitLiters(L);
+          html+=itemRow(cat.id,name,boxes,lit);
+        });
+        customs.forEach((row,idx)=>{ const L=Number(row.amount||0); const {boxes,lit}=splitLiters(L);
+          html+=customRow(cat.id,idx,row.name||'',boxes,lit);
+        });
+        html+=`</ul>
+          <div class="addRow"><button class="btn" data-act="addCustom" data-cat="${cat.id}">${lang.addCustom}</button></div>
+          <label class="note"><span class="mini">${lang.note(lang[cat.labelKey])}</span>
+            <textarea class="input" rows="2" data-act="note" data-cat="${cat.id}">${state.notes['note'+cap(cat.id)]||''}</textarea>
+          </label>
+        </section>`;
+      });
+
+      html+=`<section class="row">
+        <label><span class="mini">${lang.generalNote}</span>
+          <textarea class="input" rows="3" id="noteGeneral">${state.notes.general||''}</textarea></label>
+        <div class="actions">
+          <button class="btn" style="background:#111827;color:#fff" id="shareBtn">${lang.share}</button>
+          <button class="btn" id="copyBtn">${lang.copy}</button>
+          <button class="btn danger" id="resetAll">${lang.resetAll}</button>
+        </div>
+      </section>`;
+
+      html+=`<footer>${lang.version}</footer>`;
+      app.innerHTML=html;
+    }
+
+    function itemRow(cat,name,boxes,lit){
+      const lang=t();
+      return `<li class="item"><div class="itemLine">
+        <div class="name">${escapeHtml(disp(name))}${state.lang==='en'?`<div class="nameSub">${escapeHtml(name)}</div>`:''}</div>
+        <div class="qtyGroup">
+          <div class="card"><label>${lang.boxes}</label>
+            <button class="qbtn" data-act="decBox" data-cat="${cat}" data-name="${encodeURIComponent(name)}">–</button>
+            <input class="num" data-act="setBoxes" data-cat="${cat}" data-name="${encodeURIComponent(name)}" value="${boxes}" inputmode="numeric" pattern="[0-9]*" />
+            <button class="qbtn" data-act="incBox" data-cat="${cat}" data-name="${encodeURIComponent(name)}">+</button>
+          </div>
+          <div class="card"><label>${lang.liters}</label>
+            <button class="qbtn" data-act="decL" data-cat="${cat}" data-name="${encodeURIComponent(name)}">–</button>
+            <input class="num" data-act="setL" data-cat="${cat}" data-name="${encodeURIComponent(name)}" value="${lit}" inputmode="decimal" />
+            <button class="qbtn" data-act="incL" data-cat="${cat}" data-name="${encodeURIComponent(name)}">+</button>
+          </div>
+          <div class="total">${lang.total}: ${round(boxes*2+lit,0.5)} ${lang.unit}</div>
+        </div>
+      </div></li>`
+    }
+
+    function customRow(cat,idx,name,boxes,lit){
+      const lang=t();
+      return `<li class="item"><div class="itemLine">
+        <input class="input" style="flex:1 1 55%;min-width:220px" placeholder="${lang.addCustom.replace('+ ','')}" value="${escapeAttr(name)}" data-act="setCustomName" data-cat="${cat}" data-idx="${idx}" />
+        <div class="qtyGroup">
+          <div class="card"><label>${lang.boxes}</label>
+            <button class="qbtn" data-act="decBoxC" data-cat="${cat}" data-idx="${idx}">–</button>
+            <input class="num" data-act="setBoxesC" data-cat="${cat}" data-idx="${idx}" value="${boxes}" inputmode="numeric" pattern="[0-9]*" />
+            <button class="qbtn" data-act="incBoxC" data-cat="${cat}" data-idx="${idx}">+</button>
+          </div>
+          <div class="card"><label>${lang.liters}</label>
+            <button class="qbtn" data-act="decLC" data-cat="${cat}" data-idx="${idx}">–</button>
+            <input class="num" data-act="setLC" data-cat="${cat}" data-idx="${idx}" value="${lit}" inputmode="decimal" />
+            <button class="qbtn" data-act="incLC" data-cat="${cat}" data-idx="${idx}">+</button>
+          </div>
+          <div class="total">${lang.total}: ${round(boxes*2+lit,0.5)} ${lang.unit}</div>
+          <button class="btn danger small" data-act="removeC" data-cat="${cat}" data-idx="${idx}">${t().clear}</button>
+        </div>
+      </div></li>`
+    }
+
+    // ===== Helpers =====
+    function match(he){if(!state.search) return true; const n=state.search.toLowerCase();return he.toLowerCase().includes(n) || disp(he).toLowerCase().includes(n)}
+    function splitLiters(v){ v=Number(v)||0; const boxes=Math.floor(v/2); const lit=round(v-boxes*2,0.5); return {boxes,lit} }
+    function round(n,step){return Number((Math.round(n/step)*step).toFixed(2))}
+    function setAmount(cat,name,l){ if(!state.items[cat]) state.items[cat]={}; state.items[cat][name]=Math.max(0,Number(l)||0); save(); render(); }
+    function setAmountCustom(cat,idx,l){ const arr=state.custom[cat]; if(!arr[idx]) return; arr[idx].amount=Math.max(0,Number(l)||0); save(); render(); }
+    function shareText(){ const lang=t(); const lines=[]; lines.push(lang.dailyTitle(state.meta.date)); lines.push('');
+      CATEGORIES.forEach(cat=>{ const base=state.items[cat.id]; const nz=Object.keys(base).filter(k=>Number(base[k])>0); const cz=(state.custom[cat.id]||[]).filter(r=>r.name && Number(r.amount)>0); if(nz.length||cz.length){ lines.push(lang[cat.labelKey]+':'); nz.forEach(k=>lines.push(`• ${disp(k)} – ${base[k]} ${lang.unit}`)); cz.forEach(r=>lines.push(`• ${r.name} – ${r.amount} ${lang.unit}`)); lines.push(''); } });
+      const sh=[]; CATEGORIES.forEach(cat=>{ const base=state.items[cat.id]; Object.keys(base).forEach(k=>{ if(!Number(base[k])) sh.push(`• ${disp(k)}`) }); (state.custom[cat.id]||[]).forEach(r=>{ if(r.name && !Number(r.amount)) sh.push(`• ${r.name}`) }); });
+      if(sh.length){ lines.push(lang.shortages+':'); sh.forEach(x=>lines.push(x)); }
+      return lines.join('\n'); }
+
+    // ===== Events =====
+    app.addEventListener('click', (e)=>{
+      const el=e.target.closest('[data-act]'); if(!el) return; const act=el.getAttribute('data-act');
+      const cat=el.getAttribute('data-cat'); const name=el.getAttribute('data-name')?decodeURIComponent(el.getAttribute('data-name')):null; const idx=Number(el.getAttribute('data-idx'));
+      const cur = name? Number((state.items[cat]||{})[name]||0) : 0; const {boxes,lit}=splitLiters(cur);
+      if(act==='incBox') setAmount(cat,name,(boxes+1)*2+lit);
+      if(act==='decBox') setAmount(cat,name,Math.max(0,(boxes-1))*2+lit);
+      if(act==='incL') setAmount(cat,name,boxes*2+round(lit+0.5,0.5));
+      if(act==='decL') setAmount(cat,name,boxes*2+Math.max(0,round(lit-0.5,0.5)));
+
+      if(act==='incBoxC') setAmountCustom(cat,idx,(boxes+1)*2+lit);
+      if(act==='decBoxC') setAmountCustom(cat,idx,Math.max(0,(boxes-1))*2+lit);
+      if(act==='incLC') setAmountCustom(cat,idx,boxes*2+round(lit+0.5,0.5));
+      if(act==='decLC') setAmountCustom(cat,idx,boxes*2+Math.max(0,round(lit-0.5,0.5)));
+
+      if(act==='addCustom'){ state.custom[cat].push({name:'',amount:0}); save(); render(); }
+      if(act==='removeC'){ state.custom[cat].splice(idx,1); save(); render(); }
+      if(act==='clearCat'){ Object.keys(state.items[cat]).forEach(k=>state.items[cat][k]=0); state.custom[cat]=[]; state.notes['note'+cap(cat)]=''; save(); render(); }
+    });
+
+    app.addEventListener('input',(e)=>{
+      const el=e.target; if(el.id==='search'){ state.search=el.value||''; save(); render(); return; }
+      if(el.id==='dateInp'){ state.meta.date=el.value; save(); return; }
+      if(el.id==='noteGeneral'){ state.notes.general=el.value; save(); return; }
+      const act=el.getAttribute('data-act'); if(!act) return; const cat=el.getAttribute('data-cat'); const name=el.getAttribute('data-name')?decodeURIComponent(el.getAttribute('data-name')):null; const idx=Number(el.getAttribute('data-idx'));
+      if(act==='setBoxes'){ const l=Number((state.items[cat]||{})[name]||0); const {lit}=splitLiters(l); const b=Number(el.value.replace(/[^0-9]/g,''))||0; setAmount(cat,name,b*2+lit); }
+      if(act==='setL'){ const l=Number(el.value.replace(/[^0-9.]/g,''))||0; const cur=Number((state.items[cat]||{})[name]||0); const {boxes}=splitLiters(cur); setAmount(cat,name,boxes*2+round(l,0.5)); }
+      if(act==='setBoxesC'){ const cur=Number((state.custom[cat][idx]||{}).amount||0); const {lit}=splitLiters(cur); const b=Number(el.value.replace(/[^0-9]/g,''))||0; setAmountCustom(cat,idx,b*2+lit); }
+      if(act==='setLC'){ const l=Number(el.value.replace(/[^0-9.]/g,''))||0; const cur=Number((state.custom[cat][idx]||{}).amount||0); const {boxes}=splitLiters(cur); setAmountCustom(cat,idx,boxes*2+round(l,0.5)); }
+      if(act==='setCustomName'){ state.custom[cat][idx].name=el.value; save(); }
+      if(act==='note'){ state.notes['note'+cap(cat)]=el.value; save(); }
+    });
+
+    app.addEventListener('click',(e)=>{
+      if(e.target.id==='langToggle'){ state.lang= state.lang==='he'?'en':'he'; save(); render(); }
+      if(e.target.id==='clearSearch'){ state.search=''; save(); render(); }
+      if(e.target.id==='resetAll'){ if(confirm('לאפס הכול?')){ state={meta:{date:today},lang:state.lang,search:'',items:emptyByCat(),custom:{cold:[],hot:[],nines:[]},notes:{noteCold:'',noteHot:'',noteNines:'',general:''}}; save(); render(); } }
+      if(e.target.id==='copyBtn'){ const txt=shareText(); navigator.clipboard.writeText(txt).then(()=>alert(state.lang==='he'?'הועתק':'Copied')).catch(()=>alert('Copy failed')); }
+      if(e.target.id==='shareBtn'){ const txt=shareText(); const url='https://wa.me/?text='+encodeURIComponent(txt); window.open(url,'_blank'); }
+    });
+
+    function escapeHtml(s){return (s||'').toString().replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))}
+    function escapeAttr(s){return (s||'').toString().replace(/"/g,'&quot;')}
+
+    // Initial render
+    render();
+  })();
+  </script>
+</body>
+</html>
